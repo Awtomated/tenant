@@ -37,6 +37,8 @@ services:
     volumes:
       - static_volume:/var/lib/django/static
       - media_volume:/var/lib/django/media
+      - .env:/app/.env
+      - pubsub_service_key.json:/app/pubsub_service_key.json
     networks:
       - backend
       - frontend
@@ -48,8 +50,15 @@ services:
     command: >
       celery -A config worker --loglevel=info
     depends_on:
+      - postgres
       - redis
       - django
+      - solr
+    volumes:
+      - static_volume:/var/lib/django/static
+      - media_volume:/var/lib/django/media
+      - .env:/app/.env
+      - pubsub_service_key.json:/app/pubsub_service_key.json
     networks:
       - backend
 
