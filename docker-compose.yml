@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:${POSTGRES_DATA_PATH}
     networks:
       - backend
 
@@ -31,7 +31,7 @@ services:
       - solr-precreate
       - ${SOLR_CORE}
     volumes:
-      - solr_data:/var/lib/solr/data
+      - solr_data:${SOLR_DATA_PATH}
     networks:
       - backend
 
@@ -45,8 +45,8 @@ services:
       - solr
     # Note: depends_on does not wait for DB/Redis/Solr to be ready, only for containers to start
     volumes:
-      - static_volume:/var/lib/django/static
-      - media_volume:/var/lib/django/media
+      - static_volume:${STATIC_ROOT_PATH}
+      - media_volume:${MEDIA_ROOT_PATH}
       - .env:/app/.env
       - ./pubsub_service_key.json:/app/pubsub_service_key.json
     networks:
@@ -65,8 +65,8 @@ services:
       - django
       - solr
     volumes:
-      - static_volume:/var/lib/django/static
-      - media_volume:/var/lib/django/media
+      - static_volume:${STATIC_ROOT_PATH}
+      - media_volume:${MEDIA_ROOT_PATH}
       - .env:/app/.env
       - ./pubsub_service_key.json:/app/pubsub_service_key.json
     networks:
@@ -96,8 +96,8 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/ssl/certs:ro
-      - static_volume:/var/lib/django/static
-      - media_volume:/var/lib/django/media
+      - static_volume:${STATIC_ROOT_PATH}
+      - media_volume:${MEDIA_ROOT_PATH}
     depends_on:
       - django
       - node
