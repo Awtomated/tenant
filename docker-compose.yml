@@ -72,6 +72,25 @@ services:
     networks:
       - backend
 
+  celery-beat:
+    image: ${DJANGO_IMAGE}
+    restart: always
+    env_file: .env
+    command: >
+      celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      - postgres
+      - redis
+      - django
+      - solr
+    volumes:
+      - static_volume:${STATIC_ROOT_PATH}
+      - media_volume:${MEDIA_ROOT_PATH}
+      - .env:/app/.env
+      - ./pubsub_service_key.json:/app/pubsub_service_key.json
+    networks:
+      - backend
+
   node:
     image: ${NODE_IMAGE}
     restart: always
