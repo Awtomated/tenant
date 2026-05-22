@@ -1,4 +1,4 @@
-# Supported Version: 1.15.1
+# Supported Version: 1.20.2
 services:
   postgres:
     image: ${POSTGRES_IMAGE}
@@ -35,14 +35,26 @@ services:
     networks:
       - backend
 
+  languagetool:
+    image: erikvl87/languagetool:latest
+    restart: always
+    environment:
+      - Java_Xms=512m
+      - Java_Xmx=1g
+    networks:
+      - backend
+
   django:
     image: ${DJANGO_IMAGE}
     restart: always
     env_file: .env
+    environment:
+      - LANGUAGETOOL_URL=http://languagetool:8010
     depends_on:
       - postgres
       - redis
       - solr
+      - languagetool
     # Note: depends_on does not wait for DB/Redis/Solr to be ready, only for containers to start
     volumes:
       - static_volume:${STATIC_ROOT_PATH}
@@ -57,6 +69,8 @@ services:
     image: ${DJANGO_IMAGE}
     restart: always
     env_file: .env
+    environment:
+      - LANGUAGETOOL_URL=http://languagetool:8010
     command: >
       celery -A config worker --loglevel=info
     depends_on:
@@ -64,6 +78,7 @@ services:
       - redis
       - django
       - solr
+      - languagetool
     volumes:
       - static_volume:${STATIC_ROOT_PATH}
       - media_volume:${MEDIA_ROOT_PATH}
